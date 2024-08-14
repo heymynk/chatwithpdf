@@ -40,7 +40,13 @@ const features = [
     name: "Responsive Across Devices",
     description:
       "Access and chat with your PDFs seamlessly on any device whether it's your desktop, tablet or smartphone.",
-    icon: EyeIcon,
+    icon: MonitorSmartphoneIcon,
+  },
+  {
+    name: "Powerful Backend Integration",
+    description:
+      "Integrate seamlessly with various backend systems, ensuring smooth data flow and enhanced functionality.",
+    icon: ServerCogIcon,
   },
 ];
 
@@ -63,7 +69,9 @@ export default function Home() {
               <br />
               <br /> Upload your document, and our chatbot will answer
               questions, summarize content, and answer all your Qs. Ideal for
-              everyone, <span className="text-indigo-700">Chat With PDF</span>{" "}
+              everyone, <span className="text-indigo-700">
+                Chat With PDF
+              </span>{" "}
               turns static documents into{" "}
               <span className="font-bold">dynamic conversations</span>,
               enhancing productivity 10x fold effortlessly.
@@ -74,14 +82,41 @@ export default function Home() {
             <Link href="/dashboard">Get Started</Link>
           </Button>
         </div>
-        <div className="mt-10">
-          <Image
-            alt="App Screenshot"
-            src="https://images.unsplash.com/photo-1709884732294-90379fee354c?q=80&w=1856&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            width={2432}
-            height={1442}
-            className="mt-10 rounded-xl shadow-2xl ring-1 ring-gray-900/10"
-          />
+
+        <div className="relative overflow-hidden pt-16">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <Image
+              alt="App Screenshot"
+              src="/Screenshot 2024-08-14 111101.png"
+              width={2432}
+              height={1442}
+              className="mb-[-0%] rounded-xl shadow-2xl ring-1 ring-gray-900/10"
+            />
+            <div aria-hidden="true" className="relative">
+              <div className="absolute inset-x-0 -bottom-0 bg-gradient-to-t from-white/95 to-transparent pt-[5%]" />
+            </div>
+          </div>
+        </div>
+        <div className="mt-10 mx-10">
+          {/* Map for the features */}
+          <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="relative pl-12 pr-4 py-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out"
+              >
+                <dt className="inline font-semibold text-gray-900 dark:text-white">
+                  <feature.icon
+                    aria-hidden="true"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-purple-600 dark:text-purple-400"
+                  />
+                </dt>
+                <dd className="mt-2 text-sm text-gray-500 dark:text-gray-300">
+                  {feature.description}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </main>
