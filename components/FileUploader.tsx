@@ -66,7 +66,7 @@ function FileUploader() {
     <div className="flex flex-col gap-4 items-center max-w-7xl mx-auto px-4">
       {/* Loading section */}
 
-      {uploadProgress && (
+      {/* {uploadProgress && (
         <div className="mt-32 flex flex-col justify-center items-center gap-5">
           <div
             className={`radical-progress bg-purple-300 text-white border-purple-600 border-4 ${
@@ -86,6 +86,39 @@ function FileUploader() {
             // @ts-ignore
             statusIcon[status!]
           }
+        </div>
+      )} */}
+
+      {/* {uploadProgress && (
+        <div className="mt-32 flex flex-col justify-center items-center gap-5">
+          {progress < 100 ? (
+            <div className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-purple-600"></div>
+            </div>
+          ) : (
+            // Use a type assertion to bypass TypeScript checking
+            (status && statusIcon[status as StatusText]) || null
+          )}
+        </div>
+      )} */}
+
+      {uploadProgress && (
+        <div className="mt-32 flex flex-col justify-center items-center gap-5 relative">
+          {progress < 100 ? (
+            <div className="relative flex items-center justify-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-purple-600"></div>
+              <span
+                className="absolute text-purple-600 font-bold text-xl"
+                style={{
+                  lineHeight: "8rem", // Center text vertically
+                }}
+              >
+                {progress} %
+              </span>
+            </div>
+          ) : (
+            status && statusIcon[status as StatusText]
+          )}
         </div>
       )}
 
