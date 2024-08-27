@@ -1,9 +1,11 @@
-import React from 'react'
-
-function chatToFilePage() {
-  return (
-    <div>chatToFilePage</div>
-  )
+function chatToFilePage({
+  params: { id },
+}: {
+  params: {
+    id: string;
+  };
+}) {
+  return <div>chatToFilePage {id}</div>;
 }
 
-export default chatToFilePage
+export default chatToFilePage;

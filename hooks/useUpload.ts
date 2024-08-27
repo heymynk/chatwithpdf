@@ -8,6 +8,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase"; // Make sure to import the initialized Firestore instance
+import { generateEmbeddings } from "@/actions/generateEmbeddings";
 
 export enum StatusText {
   UPLOADING = "Uploading File...",
@@ -66,6 +67,13 @@ function useUpload() {
           });
 
           setStatus(StatusText.GENERATING);
+
+          //Generate AI Embeddings
+
+          await generateEmbeddings(fileIdToUpload);
+
+
+
           setFileId(fileIdToUpload);
 
           // Assume some AI embedding generation process here
