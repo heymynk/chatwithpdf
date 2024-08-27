@@ -5,10 +5,10 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "@/firebase"; // Make sure to import the initialized Firestore instance
 import { generateEmbeddings } from "@/actions/generateEmbeddings";
+import { createHash } from "crypto";
 
 export enum StatusText {
   UPLOADING = "Uploading File...",
@@ -18,6 +18,13 @@ export enum StatusText {
 }
 
 export type Status = StatusText[keyof StatusText];
+
+const generateFileId = async (file: File): Promise<string> => {
+  const arrayBuffer = await file.arrayBuffer();
+  const hash = createHash('sha256');
+  hash.update(new Uint8Array(arrayBuffer));
+  return hash.digest('hex');
+};
 
 function useUpload() {
   const [progress, setProgress] = useState<number | null>(null);
@@ -32,62 +39,60 @@ function useUpload() {
 
     setStatus(StatusText.UPLOADING);
 
-    const fileIdToUpload = uuidv4();
-    const storageRef = ref(storage, `users/${user.id}/files/${fileIdToUpload}`);
+    try {
+      const fileIdToUpload = await generateFileId(file);
+      const storageRef = ref(storage, `users/${user.id}/files/${fileIdToUpload}`);
 
-    const uploadTask = uploadBytesResumable(storageRef, file);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const percent = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setStatus(StatusText.UPLOADING);
-        setProgress(percent);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        setStatus(null);
-        setProgress(null);
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          setFileUrl(downloadURL);
-          setStatus(StatusText.SAVING);
-
-          await setDoc(doc(db, "users", user.id, "files", fileIdToUpload), {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            downloadURL: downloadURL,
-            ref: uploadTask.snapshot.ref.fullPath,
-            createdAt: new Date(),
-          });
-
-          setStatus(StatusText.GENERATING);
-
-          //Generate AI Embeddings
-
-          await generateEmbeddings(fileIdToUpload);
-
-
-
-          setFileId(fileIdToUpload);
-
-          // Assume some AI embedding generation process here
-
-          // Reset status and progress after completion
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const percent = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          setStatus(StatusText.UPLOADING);
+          setProgress(percent);
+        },
+        (error) => {
+          console.error("Upload failed:", error);
           setStatus(null);
           setProgress(null);
-        } catch (error) {
-          console.error("Error saving file to database:", error);
-          setStatus(null);
-          setProgress(null);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            setFileUrl(downloadURL);
+            setStatus(StatusText.SAVING);
+
+            await setDoc(doc(db, "users", user.id, "files", fileIdToUpload), {
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              downloadURL: downloadURL,
+              ref: uploadTask.snapshot.ref.fullPath,
+              createdAt: new Date(),
+            });
+
+            setStatus(StatusText.GENERATING);
+
+            // Generate AI Embeddings
+            await generateEmbeddings(fileIdToUpload);
+
+            setFileId(fileIdToUpload);
+
+          } catch (error) {
+            console.error("Error saving file to database:", error);
+            setStatus(null);
+            setProgress(null);
+          }
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.error("Error generating file ID:", error);
+      setStatus(null);
+      setProgress(null);
+    }
   };
 
   return {
