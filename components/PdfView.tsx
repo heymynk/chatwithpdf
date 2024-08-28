@@ -124,7 +124,9 @@ function PdfView({ url }: { url: string }) {
             console.error("Error loading PDF:", error);
             alert("Failed to load PDF. Please try again later.");
           }}
-          className="m-4 overflow-scroll"
+          // className="m-4 overflow-scroll"
+          className="m-4"
+
         >
           <Page className="shadow-lg" scale={scale} pageNumber={pageNumber} />
         </Document>

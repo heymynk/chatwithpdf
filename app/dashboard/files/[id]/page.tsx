@@ -44,7 +44,7 @@ async function chatToFilePage({
     return (
       <div className="grid lg:grid-cols-5 h-full overflow-hidden">
         {/* Right */}
-        <div className="col-span-5 lg:grid-cols-2 overflow-y-auto">
+        <div className="col-span-5 lg:col-span-2 overflow-y-auto">
           {/* chat */}
 
           <Chat id={id} />
