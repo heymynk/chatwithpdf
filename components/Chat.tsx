@@ -39,18 +39,26 @@ function Chat({ id }: { id: string }) {
 
       <form
         onSubmit={handleOnSubmit}
-        className="flex sticky bottom-0 space-x-2 bg-purple-600/75"
+        className="flex items-center justify-between p-2 space-x-2 bg-purple-700/80 backdrop-blur-lg border-t border-purple-600 shadow-md sticky bottom-0"
       >
         <Input
           placeholder="Ask a Question..."
           value={input}
           onChange={(e) => setinput(e.target.value)}
-          className=""
+          className="flex-grow px-4 py-2 bg-white/90 rounded-full border text-purple-800 focus:outline-none"
         />
 
-        <Button type="submit" disabled={!input || isPending}>
+        <Button
+          type="submit"
+          disabled={!input || isPending}
+          className={`px-4 py-2 rounded-full font-semibold text-white transition-colors ${
+            isPending
+              ? "bg-purple-500 cursor-not-allowed"
+              : "bg-purple-600 hover:bg-purple-700"
+          }`}
+        >
           {isPending ? (
-            <Loader2Icon className="animate-spin text-purple-600" />
+            <Loader2Icon className="animate-spin text-white" />
           ) : (
             "Ask"
           )}
