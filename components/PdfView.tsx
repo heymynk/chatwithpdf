@@ -10,15 +10,16 @@ import { Button } from "./ui/button";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-// function to render the pdf using react-pdf package
+// Function to render the PDF using the react-pdf package
 function PdfView({ url }: { url: string }) {
-  const [numPages, setnumPages] = useState<number>();
-  const [pageNumber, setpageNumber] = useState<number>(1);
-  const [file, setfile] = useState<Blob | null>(null);
-  const [rotation, setrotation] = useState<number>(0);
+  const [numPages, setnumPages] = useState<number>(); 
+  const [pageNumber, setpageNumber] = useState<number>(1); 
+  const [file, setfile] = useState<Blob | null>(null); 
+  const [rotation, setrotation] = useState<number>(0); 
   const [scale, setscale] = useState<number>(1);
 
   useEffect(() => {
+    // Function to fetch the PDF file from the provided URL
     const fetchFile = async () => {
       console.log("Fetching PDF from URL:", url);
       try {
@@ -49,6 +50,7 @@ function PdfView({ url }: { url: string }) {
     }
   }, [url]);
 
+  // Callback function when the document is successfully loaded
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
     setnumPages(numPages);
     console.log("PDF loaded successfully with numPages:", numPages);
@@ -56,8 +58,10 @@ function PdfView({ url }: { url: string }) {
 
   return (
     <div className="flex flex-col justify-center items-center">
+      {/* Controls for navigating and manipulating the PDF */}
       <div className="sticky top-0 z-50 bg-gray-100 p-2 rounded-b-lg">
         <div className="max-w-6xl px-2 grid grid-cols-6 gap-2">
+          {/* Button to navigate to the previous page */}
           <Button
             variant="outline"
             disabled={pageNumber === 1}
@@ -72,6 +76,7 @@ function PdfView({ url }: { url: string }) {
           <p className="flex items-center justify-center">
             {pageNumber} of {numPages}
           </p>
+          {/* Button to navigate to the next page */}
           <Button
             variant="outline"
             onClick={() => {
@@ -84,6 +89,7 @@ function PdfView({ url }: { url: string }) {
           >
             Next
           </Button>
+          {/* Button to rotate the PDF */}
           <Button
             variant="outline"
             onClick={() => setrotation((rotation + 90) % 360)}
@@ -91,6 +97,7 @@ function PdfView({ url }: { url: string }) {
             <RotateCw />
           </Button>
 
+          {/* Button to zoom in the PDF */}
           <Button
             variant="outline"
             disabled={scale >= 1.5}
@@ -101,6 +108,7 @@ function PdfView({ url }: { url: string }) {
             <ZoomInIcon />
           </Button>
 
+          {/* Button to zoom out the PDF */}
           <Button
             variant="outline"
             disabled={scale <= 0.75}
@@ -112,6 +120,7 @@ function PdfView({ url }: { url: string }) {
           </Button>
         </div>
       </div>
+      {/* Loading spinner or PDF view */}
       {!file ? (
         <Loader2Icon className="animate-spin h-20 w-20 text-purple-600 mt-20" />
       ) : (
@@ -124,9 +133,7 @@ function PdfView({ url }: { url: string }) {
             console.error("Error loading PDF:", error);
             alert("Failed to load PDF. Please try again later.");
           }}
-          // className="m-4 overflow-scroll"
           className="m-4"
-
         >
           <Page className="shadow-lg" scale={scale} pageNumber={pageNumber} />
         </Document>

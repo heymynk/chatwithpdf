@@ -1,7 +1,7 @@
 "use client";
+
 import { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-
 import {
   CheckCircleIcon,
   CircleArrowDown,
@@ -13,12 +13,12 @@ import useUpload, { StatusText } from "@/hooks/useUpload";
 import { useRouter } from "next/navigation";
 
 function FileUploader() {
-  const { progress, status, fileId, handleUpload } = useUpload();
+  const { progress, status, fileId, handleUpload } = useUpload(); // Destructuring upload state and functions
   const router = useRouter();
 
   useEffect(() => {
     if (fileId) {
-      router.push(`/dashboard/files/${fileId}`);
+      router.push(`/dashboard/files/${fileId}`); // Redirecting to the file's page after upload
     }
   }, [fileId, router]);
 
@@ -27,15 +27,15 @@ function FileUploader() {
       const file = acceptedFiles[0];
 
       if (file) {
-        await handleUpload(file);
+        await handleUpload(file); 
       } else {
-        // Handle file not being selected
-        console.error("No file selected");
+        console.error("No file selected"); 
       }
     },
     [handleUpload]
   );
 
+  // Icons to represent different upload statuses
   const statusIcon: {
     [key in StatusText]: JSX.Element;
   } = {
@@ -51,6 +51,7 @@ function FileUploader() {
     ),
   };
 
+  // Text to represent different upload statuses
   const statusText: {
     [key in StatusText]: string;
   } = {
@@ -60,19 +61,21 @@ function FileUploader() {
     [StatusText.GENERATING]: StatusText.GENERATING,
   };
 
+  // Configuring the dropzone for file upload
   const { getRootProps, getInputProps, isFocused, isDragActive, isDragAccept } =
     useDropzone({
       onDrop,
       maxFiles: 1,
       accept: {
-        "application/pdf": [".pdf"],
+        "application/pdf": [".pdf"], 
       },
     });
 
-  const uploadProgress = progress != null && progress >= 0 && progress <= 100;
+  const uploadProgress = progress != null && progress >= 0 && progress <= 100; 
 
   return (
     <div className="flex flex-col gap-4 items-center max-w-7xl mx-auto px-4">
+      {/* Show progress bar during file upload */}
       {uploadProgress && (
         <div className="mt-32 flex flex-col justify-center items-center gap-5 relative">
           {progress < 100 ? (
@@ -81,7 +84,7 @@ function FileUploader() {
               <span
                 className="absolute text-purple-600 font-bold text-xl"
                 style={{
-                  lineHeight: "8rem", // Center text vertically
+                  lineHeight: "8rem", 
                 }}
               >
                 {progress} %
@@ -89,15 +92,16 @@ function FileUploader() {
             </div>
           ) : (
             <>
-              {status && statusIcon[status as StatusText]}
+              {status && statusIcon[status as StatusText]} 
               <div className="text-purple-600 text-lg mt-2">
-                {statusText[status as StatusText]}
+                {statusText[status as StatusText]} 
               </div>
             </>
           )}
         </div>
       )}
 
+      {/* Dropzone UI for file selection */}
       {!uploadProgress && (
         <div
           {...getRootProps()}
@@ -127,4 +131,4 @@ function FileUploader() {
   );
 }
 
-export default FileUploader;
+export default FileUploader; 

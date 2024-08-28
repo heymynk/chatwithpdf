@@ -2,7 +2,7 @@
 
 import { adminDb } from "@/firebaseAdmin";
 import { auth } from "@clerk/nextjs/server";
-import {generateLangchainComplition} from "@/lib/langchain"
+// import {generateLangchainComplition} from "@/lib/langchain"
 
 export type Message = {
     id?: string;
@@ -41,15 +41,15 @@ export async function askQuestion(id: string, question: string) {
 
   //Generate Ai Message
 
-  const reply = await generateLangchainComplition(id, question);
+  // const reply = await generateLangchainComplition(id, question);
 
-  const aiMessage: Message = {
-    role: "ai",
-    message: reply,
-    createdAt: new Date(),
-  };
+  // const aiMessage: Message = {
+  //   role: "ai",
+  //   message: reply,
+  //   createdAt: new Date(),
+  // };
 
-  await chatRef.add(aiMessage);
+  // await chatRef.add(aiMessage);
 
   return {success: true, message:null};
 

@@ -15,25 +15,23 @@ import { adminDb } from "@/firebaseAdmin";
 import { auth } from "@clerk/nextjs/server";
 import { error } from "console";
 
-//Initialize the OpenAI model with API Key and model name
+// Initialize the OpenAI model with API Key and model name
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-//   modelName: "gpt-4o",
-    modelName: "gpt-3.5-turbo",
+  modelName: "gpt-3.5-turbo", // Use GPT-3.5-turbo model
 });
 
 export const indexName = "chatwithpdf";
 
-async function namespaceExists(
-  index: Index<RecordMetadata>,
-  namespace: string
-) {
-  if (namespace === null) throw new Error("No namespace value providded");
+// Check if a namespace exists in Pinecone index
+async function namespaceExists(index: Index<RecordMetadata>, namespace: string) {
+  if (namespace === null) throw new Error("No namespace value provided");
 
   const { namespaces } = await index.describeIndexStats();
   return namespaces?.[namespace] !== undefined;
 }
 
+// Generate document embeddings and store them in Pinecone vector store
 export async function generateDocs(docId: string) {
   const { userId } = await auth();
 
@@ -41,9 +39,7 @@ export async function generateDocs(docId: string) {
     throw new Error("User not found");
   }
 
-  console.log(
-    `---Fetching the download URL for docId: ${docId} from Firebase... ---`
-  );
+  console.log(`---Fetching the download URL for docId: ${docId} from Firebase... ---`);
 
   const firebaseRef = await adminDb
     .collection("users")
@@ -59,28 +55,25 @@ export async function generateDocs(docId: string) {
   const downloadUrl = firebaseRef.data()?.downloadURL;
 
   if (!downloadUrl) {
-    console.log(firebaseRef.data()); // Log the entire document data for debugging
+    console.log(firebaseRef.data()); 
     throw new Error("Download URL not found");
   }
 
   console.log(`---Download URL fetched successfully: ${downloadUrl} ---`);
 
-  // Fetch the PDF from the specified URL for downloading the PDF.
+  // Fetch and load the PDF from the URL
   const response = await fetch(downloadUrl);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch PDF from the URL: ${downloadUrl}`);
   }
 
-  // Load the PDF into a PDFDocument object
   const data = await response.blob();
 
-  // Load the PDF document from the specified path
   console.log("---Loading PDF Document... ---");
   const loader = new PDFLoader(data);
   const docs = await loader.load();
 
-  // Split the loaded document into smaller parts for easier processing
   console.log("---Splitting the loaded document into smaller parts... ---");
   const splitter = new RecursiveCharacterTextSplitter();
   const splitDocs = await splitter.splitDocuments(docs);
@@ -89,7 +82,7 @@ export async function generateDocs(docId: string) {
   return splitDocs;
 }
 
-//when we store the embeddins the type of database is called vecctorStore
+// Generate embeddings for split documents and store them in Pinecone vector store
 export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
   const { userId } = await auth();
 
@@ -99,19 +92,14 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
 
   let pineconeVectorStore;
 
-  //Generating embeddings (numerical  representation) for the split documents
-
   console.log("---Generating embeddings for the split documents---");
   const embeddings = new OpenAIEmbeddings();
-
   const index = await pineconeClient.index(indexName);
 
   const namespaceAlreadyExists = await namespaceExists(index, docId);
 
   if (namespaceAlreadyExists) {
-    console.log(
-      `---Namespace ${docId} already exists, reusing existing embeddings.... ---`
-    );
+    console.log(`---Namespace ${docId} already exists, reusing existing embeddings.... ---`);
 
     pineconeVectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex: index,
@@ -120,13 +108,10 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
 
     return pineconeVectorStore;
   } else {
-    // If the namespace does not exist, download the PDF from the firestore via the stored Download URL & generate the embeddings and store them in the pinecone vector store.
-
+    // If namespace does not exist, generate embeddings and store them
     const spiltDocs = await generateDocs(docId);
 
-    console.log(
-      `--- Storing thr embeddings in namespace ${docId} in the ${indexName} Pinecone Vector Store... ---`
-    );
+    console.log(`--- Storing the embeddings in namespace ${docId} in the ${indexName} Pinecone Vector Store... ---`);
 
     pineconeVectorStore = await PineconeStore.fromDocuments(
       spiltDocs,
@@ -141,9 +126,7 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
   }
 }
 
-
-const generateLangchainComplition = async (docId: string, question: string) => {
-
+// Placeholder for generating a completion using LangChain (yet to be implemented)
+const generateLangchainCompletion = async (docId: string, question: string) => {
+  // Function implementation will be added here
 }
-
-
