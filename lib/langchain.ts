@@ -140,3 +140,10 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
     return pineconeVectorStore;
   }
 }
+
+
+const generateLangchainComplition = async (docId: string, question: string) => {
+
+}
+
+
