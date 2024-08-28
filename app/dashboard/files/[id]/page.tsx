@@ -24,10 +24,9 @@ async function chatToFilePage({
       .doc(id)
       .get();
       
-
-      if (!ref.exists) {
-        throw new Error(`Document with ID ${id} does not exist.`);
-      }
+    if (!ref.exists) {
+      throw new Error(`Document with ID ${id} does not exist.`);
+    }
 
     console.log("Firebase document reference fetched:", ref);
 
@@ -42,14 +41,14 @@ async function chatToFilePage({
     }
 
     return (
-      <div className="grid lg:grid-cols-5 h-full overflow-hidden">
+      <div className="grid lg:grid-cols-5 h-screen">
         {/* Right */}
         <div className="col-span-5 lg:grid-cols-2 overflow-y-auto">
           {/* chat */}
         </div>
 
         {/* Left */}
-        <div className="col-span-5 lg:col-span-3 bg-gray-100 border-r-2 lg:border-purple-600 lg:-order-1 overflow-auto">
+        <div className="col-span-5 lg:col-span-3 bg-gray-100 border-r-2 lg:border-purple-600 lg:-order-1 overflow-y-auto">
           {/* PDFView */}
           <PdfView url={url} />
         </div>
