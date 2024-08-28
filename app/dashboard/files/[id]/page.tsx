@@ -42,7 +42,7 @@ async function chatToFilePage({
     }
 
     return (
-      <div className="grid lg:grid-cols-5 h-screen">
+      <div className="grid lg:grid-cols-5 h-full overflow-hidden">
         {/* Right */}
         <div className="col-span-5 lg:grid-cols-2 overflow-y-auto">
           {/* chat */}
@@ -52,7 +52,7 @@ async function chatToFilePage({
         </div>
 
         {/* Left */}
-        <div className="col-span-5 lg:col-span-3 bg-gray-100 border-r-2 lg:border-purple-600 lg:-order-1 overflow-y-auto">
+        <div className="col-span-5 lg:col-span-3 bg-gray-100 border-r-2 lg:border-purple-600 lg:-order-1 overflow-auto">
           {/* PDFView */}
           <PdfView url={url} />
         </div>
