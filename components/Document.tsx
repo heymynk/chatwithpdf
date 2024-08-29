@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import byteSize from "byte-size";
 import { Button } from "./ui/button";
-import { DownloadCloud, Trash2Icon } from "lucide-react";
+import { DownloadCloud, Trash2Icon, LoaderIcon } from "lucide-react";
 import { startTransition, useTransition } from "react";
 import { deleteDocument } from "@/actions/deleteDocument";
 
@@ -19,7 +19,7 @@ function Document({
   downloadUrl: string;
 }) {
   const router = useRouter();
-  const [isDelete, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition(); // Use the useTransition hook to manage pending state
 
   return (
     <div className="relative flex flex-col w-64 h-80 rounded-xl bg-white drop-shadow-md justify-between p-4 transition-all transform hover:scale-105 hover:bg-purple-600 hover:text-white cursor-pointer group">
@@ -31,7 +31,6 @@ function Document({
       >
         <p className="font-semibold line-clamp-2">{name}</p>
         <p className="text-sm text-gray-500 group-hover:text-purple-200">
-          {/* Render size in kbs */}
           {byteSize(size).value} KB
         </p>
       </div>
@@ -41,7 +40,7 @@ function Document({
         <Button
           variant="outline"
           onClick={(e) => {
-            e.stopPropagation(); 
+            e.stopPropagation();
             const confirm = window.confirm(
               "Are you sure you want to delete this document?"
             );
@@ -52,7 +51,11 @@ function Document({
             }
           }}
         >
-          <Trash2Icon className="h-6 w-6 text-red-500" />
+          {isPending ? (
+            <LoaderIcon className="h-6 w-6 animate-spin text-gray-500" />
+          ) : (
+            <Trash2Icon className="h-6 w-6 text-red-500" />
+          )}
         </Button>
         <Button variant="outline" asChild>
           <a href={downloadUrl} download>
