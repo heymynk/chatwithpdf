@@ -11,7 +11,7 @@ function ChatMessage({ message }: { message: Message }) {
   const { user } = useUser();
 
   return (
-    <div className={`chat ${isHuman ? "chat-end" : "chat-start"}`}>
+    <div className={`chat ${isHuman ? "chat-end" : "chat-start"} mb-4`}>
       <div className="chat-image avatar">
         <div className="w-10 rounded-full">
           {isHuman ? (
@@ -25,20 +25,20 @@ function ChatMessage({ message }: { message: Message }) {
               />
             )
           ) : (
-            <div className="h-10 w-10 bg-purple-600  flex items-center justify-center">
+            <div className="h-10 w-10 bg-purple-600 flex items-center justify-center">
               <BotIcon className="text-white h-7 w-7" />
             </div>
           )}
         </div>
       </div>
       <div className={`chat-bubble prose ${isHuman && "bg-purple-600 text-white"}`}>
-          {message.message === "Thinking..." ? (
-            <div className="flex items-center justify-center">
-                <Loader2Icon className="animate-spin h-5 w-5 text-white"/>
-            </div>
-          ):(
-            <Markdown>{message.message}</Markdown>
-          )}
+        {message.message === "Thinking..." ? (
+          <div className="flex items-center justify-center">
+            <Loader2Icon className="animate-spin h-5 w-5 text-white" />
+          </div>
+        ) : (
+          <Markdown>{message.message}</Markdown>
+        )}
       </div>
     </div>
   );

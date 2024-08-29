@@ -1,28 +1,34 @@
-"use client"
+"use client";
 
-import React from "react";
+import React, { useTransition } from "react";
 import { Button } from "./ui/button";
-import { PlusCircleIcon } from "lucide-react";
+import { PlusCircleIcon, Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 function PlaceholderDocument() {
-
-  // Initialize router for navigation
-   const router = useRouter(); 
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
-
-    // Check if the user is Free and if limit is exhausted, push user to the upgrade page
-    router.push("/dashboard/upload"); 
+    startTransition(() => {
+      router.push("/dashboard/upload");
+    });
   };
 
   return (
     <Button
       onClick={handleClick}
       className="flex flex-col items-center w-64 h-80 rounded-xl bg-gray-300 drop-shadow-md text-gray-600"
+      disabled={isPending} // Disable the button while the transition is pending
     >
-      <PlusCircleIcon className="h-16 w-16" /> 
-      <p>Add a document</p> 
+      {isPending ? (
+        <Loader2Icon className="h-16 w-16 animate-spin" />
+      ) : (
+        <>
+          <PlusCircleIcon className="h-16 w-16" />
+          <p>Add a document</p>
+        </>
+      )}
     </Button>
   );
 }
