@@ -41,7 +41,7 @@ function Document({
         <Button
           variant="outline"
           onClick={(e) => {
-            e.stopPropagation(); // Prevents triggering the parent onClick
+            e.stopPropagation(); 
             const confirm = window.confirm(
               "Are you sure you want to delete this document?"
             );
