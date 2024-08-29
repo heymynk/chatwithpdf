@@ -23,8 +23,50 @@ const model = new ChatOpenAI({
 
 export const indexName = "chatwithpdf";
 
+//fuction to fetch the messages from the DataBase
+async function fetchMessagefromDB(docId: string) {
+  const { userId } = await auth(); // Fetch the current user's ID
+  if (!userId) {
+    throw Error("User not found.");
+  }
+
+  console.log("--- fetching chat messages from the firebase database---");
+
+  // Get the last 6 messages from the chat history
+  const chats = await adminDb
+    .collection(`users`)
+    .doc(userId) 
+    .collection("files")
+    .doc(docId)
+    .collection("chat")
+    .orderBy("createdAt", "desc")
+    .limit(6) 
+    .get();
+
+  if (chats.empty) {
+    console.log("No chat history found.");
+    return [];
+  }
+
+  // Convert chat.docs into HumanMessage and AIMessage instances
+  const chatHistory = chats.docs.map((doc) =>
+    doc.data().role === "human"
+      ? new HumanMessage(doc.data().message)
+      : new AIMessage(doc.data().message)
+  );
+
+  console.log(`---Fetched last ${chatHistory.length} messages successfully`);
+  console.log(chatHistory.map((msg) => msg.content.toString()));
+
+  return chatHistory;
+}
+
+
 // Check if a namespace exists in Pinecone index
-async function namespaceExists(index: Index<RecordMetadata>, namespace: string) {
+async function namespaceExists(
+  index: Index<RecordMetadata>,
+  namespace: string
+) {
   if (namespace === null) throw new Error("No namespace value provided");
 
   const { namespaces } = await index.describeIndexStats();
@@ -39,7 +81,9 @@ export async function generateDocs(docId: string) {
     throw new Error("User not found");
   }
 
-  console.log(`---Fetching the download URL for docId: ${docId} from Firebase... ---`);
+  console.log(
+    `---Fetching the download URL for docId: ${docId} from Firebase... ---`
+  );
 
   const firebaseRef = await adminDb
     .collection("users")
@@ -55,7 +99,7 @@ export async function generateDocs(docId: string) {
   const downloadUrl = firebaseRef.data()?.downloadURL;
 
   if (!downloadUrl) {
-    console.log(firebaseRef.data()); 
+    console.log(firebaseRef.data());
     throw new Error("Download URL not found");
   }
 
@@ -99,7 +143,9 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
   const namespaceAlreadyExists = await namespaceExists(index, docId);
 
   if (namespaceAlreadyExists) {
-    console.log(`---Namespace ${docId} already exists, reusing existing embeddings.... ---`);
+    console.log(
+      `---Namespace ${docId} already exists, reusing existing embeddings.... ---`
+    );
 
     pineconeVectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex: index,
@@ -111,7 +157,9 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
     // If namespace does not exist, generate embeddings and store them
     const spiltDocs = await generateDocs(docId);
 
-    console.log(`--- Storing the embeddings in namespace ${docId} in the ${indexName} Pinecone Vector Store... ---`);
+    console.log(
+      `--- Storing the embeddings in namespace ${docId} in the ${indexName} Pinecone Vector Store... ---`
+    );
 
     pineconeVectorStore = await PineconeStore.fromDocuments(
       spiltDocs,
@@ -126,7 +174,83 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
   }
 }
 
-// Placeholder for generating a completion using LangChain (yet to be implemented)
-const generateLangchainCompletion = async (docId: string, question: string) => {
+// Placeholder for generating a completion using LangChain
+const generateLangchainComplition = async (docId: string, question: string) => {
   // Function implementation will be added here
-}
+
+  let pineconeVectorStore;
+
+  pineconeVectorStore = await generateEmbeddingsInPinecodeVectorStore(docId);
+  if (!pineconeVectorStore) {
+    throw new Error("pinecone vector store is not found");
+  }
+
+  // create a retriever to search through the vector store
+  console.log("--- Creating a retriever ---");
+  const retriever = pineconeVectorStore.asRetriever();
+
+  // Fetch the chat history from the database
+  const chatHistory = await fetchMessagefromDB(docId);
+
+  // Define a prompt template for generating search queries based on conversation history
+  console.log("---Defining a prompt template....---");
+
+  const historyAwarePrompt = ChatPromptTemplate.fromMessages([
+    ...chatHistory, // Insert the actual chat history
+
+    ["user", "{input}"],
+    [
+      "user",
+      "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation",
+    ],
+  ]);
+
+  // Create a history-aware retriever chain that uses the model, retriever, and prompt
+  console.log("---creating a history-aware retriever chain... ---");
+  const historyAwareRetrieverCHain = await createHistoryAwareRetriever({
+    llm: model,
+    retriever,
+    rephrasePrompt: historyAwarePrompt,
+  });
+
+  // Define a prompt template for answering queestions based on retrieved context
+  console.log("---Defining a prompt template for answering questions... ---");
+
+  const historyAwareRetrievalPrompt = ChatPromptTemplate.fromMessages([
+    [
+      "system",
+      "Answer the user's question based on the below context: \n\n{context}",
+    ],
+    ...chatHistory, //insert actual chat history
+    ["user", "{input}"],
+  ]);
+
+  //create a chain to combine the retrieved documents into a coherent response
+  console.log("--- Creating a document chain...---");
+  const historyAwareCombineDocsChain = await createStuffDocumentsChain({
+    llm: model,
+    prompt: historyAwareRetrievalPrompt,
+  });
+
+  // create the main retrieval chain that combines history-aware retriever and document combining chains
+  console.log("--- Creating the main retrieval chain... ---");
+  const conversationalRetrievalChain = await createRetrievalChain({
+    retriever: historyAwareRetrieverCHain,
+    combineDocsChain: historyAwareCombineDocsChain,
+  });
+
+  console.log("---Running the chain with sample conversation... ---");
+  const reply = await conversationalRetrievalChain.invoke({
+    chat_history: chatHistory,
+    input: question,
+  });
+
+  // Print the result to the console
+
+  console.log(reply.answer);
+  return reply.answer;
+
+};
+
+
+export {model, generateLangchainComplition};
