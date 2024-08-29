@@ -3,14 +3,14 @@
 import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2Icon } from "lucide-react";
-import { useCollection } from "react-firebase-hooks/firestore"; // Firebase hook to listen to a Firestore collection
-import { useUser } from "@clerk/nextjs"; // Hook to get the current user
-import { collection, doc, orderBy, query } from "firebase/firestore"; // Firestore methods for querying the database
-import { db } from "@/firebase"; // Firebase configuration and initialization
+import { Loader2Icon, DownloadIcon, TrashIcon, Share2Icon } from "lucide-react"; // Ensure you import icons for download, trash, and share
+import { useCollection } from "react-firebase-hooks/firestore";
+import { useUser } from "@clerk/nextjs";
+import { collection, doc, orderBy, query } from "firebase/firestore";
+import { db } from "@/firebase";
 import { askQuestion } from "@/actions/askQuestion";
 import ChatMessage from "./ChatMessage";
-// Message sender
+
 export type Message = {
   id?: string;
   role: "human" | "ai" | "placeholder";
@@ -19,14 +19,13 @@ export type Message = {
 };
 
 function Chat({ id }: { id: string }) {
-  const { user } = useUser(); 
+  const { user } = useUser();
 
-  const [input, setInput] = useState(""); // State to manage the input value
-  const [messages, setMessages] = useState<Message[]>([]); // State to store chat messages
-  const [isPending, startTransition] = useTransition(); // State to manage UI transitions
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isPending, startTransition] = useTransition();
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
-  // Firestore query to get chat messages for the current user and document
   const [snapshot, loading, error] = useCollection(
     user &&
       query(
@@ -35,34 +34,22 @@ function Chat({ id }: { id: string }) {
       )
   );
 
-  //useEffect for the smooth scroll functionality
-
   useEffect(() => {
     bottomOfChatRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   }, [messages]);
 
-  // Update the messages state when the Firestore snapshot changes
   useEffect(() => {
     if (!snapshot) return;
 
-    console.log("Updated snapshot", snapshot.docs);
-
-    // Clone the existing messages array to avoid mutating the state directly
-    // const currentMessages = [...messages];
-
-    // Get the last message to check if the AI is thinking
     const lastMessage = messages.pop();
     if (lastMessage?.role === "ai" && lastMessage.message === "Thinking...") {
-      // return as this is a dummy placeholder message
       return;
     }
 
-    // Mapping Firestore documents to Message objects
     const newMessages: Message[] = snapshot.docs.map((doc) => {
       const { role, message, createdAt } = doc.data();
-
       return {
         id: doc.id,
         role,
@@ -74,14 +61,12 @@ function Chat({ id }: { id: string }) {
     setMessages(newMessages);
   }, [snapshot]);
 
-  // Handle form submission when a user asks a question
   const handleOnSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     const q = input;
     setInput(" ");
 
-    // Optimistic UI Update: Add user's question and a placeholder for the AI response
     setMessages((prevMessages) => [
       ...prevMessages,
       {
@@ -97,12 +82,10 @@ function Chat({ id }: { id: string }) {
       },
     ]);
 
-    // Transition to handle the question-answer process asynchronously
     startTransition(async () => {
       const { success, message } = await askQuestion(id, q);
 
       if (!success) {
-        // If there is an error, update the last AI message with the error message
         setMessages((prev) =>
           prev.slice(0, prev.length - 1).concat([
             {
@@ -116,11 +99,63 @@ function Chat({ id }: { id: string }) {
     });
   };
 
+  const handleDeleteConversation = () => {
+    // Implement functionality to delete the conversation
+  };
+
+  const handleDownloadChat = () => {
+    // Implement functionality to download the chat
+    const chatData = messages
+      .map((msg) => `${msg.role}: ${msg.message}`)
+      .join("\n");
+    const blob = new Blob([chatData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "chat.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShareChat = () => {
+    // Implement functionality to share the chat
+    const chatData = messages
+      .map((msg) => `${msg.role}: ${msg.message}`)
+      .join("\n");
+    navigator.clipboard.writeText(chatData).then(() => {
+      alert("Chat copied to clipboard");
+    });
+  };
+
   return (
     <div className="flex flex-col h-full overflow-scroll">
+      {/* Actions Section */}
+      <div className="flex justify-center sticky top-0 z-50 p-2 bg-white">
+        <Button
+          variant="outline"
+          onClick={handleDeleteConversation}
+          className="flex items-center space-x-2 mx-2"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleDownloadChat}
+          className="flex items-center space-x-2 mx-2"
+        >
+          <DownloadIcon className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleShareChat}
+          className="flex items-center space-x-2 mx-2"
+        >
+          <Share2Icon className="h-5 w-5" />
+        </Button>
+      </div>
+
       {/* Chat contents */}
       <div className="flex-1 w-full">
-        {/* Chat Messages */}
         {loading ? (
           <div className="flex items-center justify-center">
             <Loader2Icon className="animate-spin h-20 w-20 text-purple-600 mt-20" />
@@ -151,15 +186,12 @@ function Chat({ id }: { id: string }) {
         onSubmit={handleOnSubmit}
         className="flex items-center justify-between p-2 space-x-2 bg-purple-700/80 backdrop-blur-lg border-t border-purple-600 shadow-md sticky bottom-0"
       >
-        {/* Input field for user's question */}
         <Input
           placeholder="Ask a Question..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           className="flex-grow px-4 py-2 bg-white/90 rounded-full border text-purple-800 focus:outline-none"
         />
-
-        {/* Submit button to send the question */}
         <Button
           type="submit"
           disabled={!input || isPending}
