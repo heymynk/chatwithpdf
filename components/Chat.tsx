@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2Icon, DownloadIcon, TrashIcon, Share2Icon } from "lucide-react"; // Ensure you import icons for download, trash, and share
+import { Loader2Icon, DownloadIcon, TrashIcon, Share2Icon } from "lucide-react"; 
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useUser } from "@clerk/nextjs";
 import { collection, doc, orderBy, query } from "firebase/firestore";
