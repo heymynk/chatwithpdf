@@ -49,7 +49,7 @@ function Chat({ id }: { id: string }) {
 
     console.log("Updated snapshot", snapshot.docs);
 
-    // // Clone the existing messages array to avoid mutating the state directly
+    // Clone the existing messages array to avoid mutating the state directly
     // const currentMessages = [...messages];
 
     // Get the last message to check if the AI is thinking
