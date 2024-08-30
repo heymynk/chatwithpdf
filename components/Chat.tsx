@@ -3,13 +3,20 @@
 import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Loader2Icon, DownloadIcon, TrashIcon, Share2Icon } from "lucide-react"; 
+import {
+  Loader2Icon,
+  DownloadIcon,
+  TrashIcon,
+  Share2Icon,
+  Trash2Icon,
+} from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useUser } from "@clerk/nextjs";
 import { collection, doc, orderBy, query } from "firebase/firestore";
 import { db } from "@/firebase";
 import { askQuestion } from "@/actions/askQuestion";
 import ChatMessage from "./ChatMessage";
+import { deleteChat } from "@/actions/deleteChat";
 
 export type Message = {
   id?: string;
@@ -99,21 +106,70 @@ function Chat({ id }: { id: string }) {
     });
   };
 
-  const handleDeleteConversation = () => {
-    // Implement functionality to delete the conversation
+  const handleDeleteConversation = async () => {
+    try {
+      startTransition(async () => {
+        const userId = user?.id?.toString() ?? "";
+        await deleteChat(id?.toString() ?? "", userId);
+        console.log("Chat deleted successfully");
+      });
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
+    }
   };
 
   const handleDownloadChat = () => {
-    // Implement functionality to download the chat
+    // Convert messages to HTML format
     const chatData = messages
-      .map((msg) => `${msg.role}: ${msg.message}`)
+      .map((msg) => `<p><strong>${msg.role}:</strong> ${msg.message}</p>`)
       .join("\n");
-    const blob = new Blob([chatData], { type: "text/plain" });
+
+    // Wrap the chat data in basic HTML structure
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Chat Conversation</title>
+      <style>
+        /* Add Tailwind CSS styles here */
+        body {
+          @apply h-screen overflow-hidden bg-gray-100;
+        }
+        .chat-container {
+          @apply max-w-md mx-auto p-4 pt-6 pb-8 mb-4 bg-white rounded shadow-md;
+        }
+        .chat-message {
+          @apply mb-4 p-4 rounded shadow-md;
+        }
+        .chat-message.sent {
+          @apply bg-green-100 text-green-800;
+        }
+        .chat-message.received {
+          @apply bg-gray-100 text-gray-800;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="chat-container">
+        ${chatData}
+      </div>
+    </body>
+    </html>
+  `;
+
+    // Create a Blob from the HTML content
+    const blob = new Blob([htmlContent], { type: "text/html" });
     const url = URL.createObjectURL(blob);
+
+    // Create a temporary anchor element to trigger the download
     const a = document.createElement("a");
     a.href = url;
-    a.download = "chat.txt";
+    a.download = "chat.html"; // Download as an HTML file
     a.click();
+
+    // Clean up by revoking the object URL
     URL.revokeObjectURL(url);
   };
 
@@ -126,7 +182,19 @@ function Chat({ id }: { id: string }) {
       alert("Chat copied to clipboard");
     });
   };
-
+  // const handleShareChat = (chatId) => {
+  //   // Construct the shareable link based on the chatId and current location
+  //   const shareableLink = `${window.location.origin}/chat/${chatId}`;
+  
+  //   // Copy the link to the clipboard
+  //   navigator.clipboard.writeText(shareableLink).then(() => {
+  //     alert("Chat link copied to clipboard");
+  //   }).catch((err) => {
+  //     console.error("Failed to copy chat link: ", err);
+  //     alert("Failed to copy chat link");
+  //   });
+  // };
+  
   return (
     <div className="flex flex-col h-full overflow-scroll">
       {/* Actions Section */}
@@ -136,7 +204,7 @@ function Chat({ id }: { id: string }) {
           onClick={handleDeleteConversation}
           className="flex items-center space-x-2 mx-2"
         >
-          <TrashIcon className="h-5 w-5" />
+          <Trash2Icon className="h-5 w-5 text-red-500" />
         </Button>
         <Button
           variant="outline"
