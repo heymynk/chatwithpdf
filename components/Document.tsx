@@ -11,15 +11,15 @@ function Document({
   id,
   name,
   size,
-  downloadUrl,
+  downloadURL,
 }: {
   id: string;
   name: string;
   size: number;
-  downloadUrl: string;
+  downloadURL: string;
 }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition(); 
+  const [isPending, startTransition] = useTransition();
 
   return (
     <div className="relative flex flex-col w-64 h-80 rounded-xl bg-white drop-shadow-md justify-between p-4 transition-all transform hover:scale-105 hover:bg-purple-600 hover:text-white cursor-pointer group">
@@ -58,10 +58,22 @@ function Document({
           )}
         </Button>
         <Button variant="outline" asChild>
-          <a href={downloadUrl} download>
+          <a href={downloadURL} download target="_blank">
             <DownloadCloud className="h-6 w-6 text-purple-600" />
           </a>
         </Button>
+        {/* <Button
+          variant="outline"
+          onClick={() => {
+            if (downloadURL) {
+              window.open(downloadURL, "_blank");
+            } else {
+              console.error("Download URL is undefined");
+            }
+          }}
+        >
+          <DownloadCloud className="h-6 w-6 text-purple-600" />
+        </Button> */}
       </div>
     </div>
   );
