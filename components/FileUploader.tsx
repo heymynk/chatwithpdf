@@ -13,7 +13,7 @@ import useUpload, { StatusText } from "@/hooks/useUpload";
 import { useRouter } from "next/navigation";
 
 function FileUploader() {
-  const { progress, status, fileId, handleUpload } = useUpload(); // Destructuring upload state and functions
+  const { progress, status, fileId, handleUpload } = useUpload(); 
   const router = useRouter();
 
   useEffect(() => {
