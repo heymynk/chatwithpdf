@@ -5,8 +5,6 @@ import { Button } from "./ui/button";
 import { PlusCircleIcon, Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-
-
 function PlaceholderDocument() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
