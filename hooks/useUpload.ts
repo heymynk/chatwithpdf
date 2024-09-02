@@ -6,7 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setDoc, doc } from "firebase/firestore";
-import { db } from "@/firebase"; // Import the initialized Firestore instance
+import { db } from "@/firebase"; 
 import { generateEmbeddings } from "@/actions/generateEmbeddings";
 import { createHash } from "crypto";
 
@@ -42,7 +42,7 @@ function useUpload() {
     setStatus(StatusText.UPLOADING);
 
     try {
-      const fileIdToUpload = await generateFileId(file); // Generate unique file ID
+      const fileIdToUpload = await generateFileId(file); 
       const storageRef = ref(storage, `users/${user.id}/files/${fileIdToUpload}`); // Reference for the file in Firebase Storage
 
       const uploadTask = uploadBytesResumable(storageRef, file); 

@@ -19,7 +19,7 @@ function PlaceholderDocument() {
     <Button
       onClick={handleClick}
       className="flex flex-col items-center w-64 h-80 rounded-xl bg-gray-300 drop-shadow-md text-gray-600"
-      disabled={isPending} // Disable the button while the transition is pending
+      disabled={isPending}
     >
       {isPending ? (
         <Loader2Icon className="h-16 w-16 animate-spin" />

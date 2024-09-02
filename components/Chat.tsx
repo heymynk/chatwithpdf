@@ -166,7 +166,7 @@ function Chat({ id }: { id: string }) {
     // Create a temporary anchor element to trigger the download
     const a = document.createElement("a");
     a.href = url;
-    a.download = "chat.html"; // Download as an HTML file
+    a.download = "chat.html"; 
     a.click();
 
     // Clean up by revoking the object URL
@@ -182,6 +182,8 @@ function Chat({ id }: { id: string }) {
       alert("Chat copied to clipboard");
     });
   };
+
+  
   // const handleShareChat = (chatId) => {
   //   // Construct the shareable link based on the chatId and current location
   //   const shareableLink = `${window.location.origin}/chat/${chatId}`;

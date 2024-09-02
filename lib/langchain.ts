@@ -18,7 +18,7 @@ import { error } from "console";
 // Initialize the OpenAI model with API Key and model name
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: "gpt-3.5-turbo", // Use GPT-3.5-turbo model
+  modelName: "gpt-3.5-turbo", 
 });
 
 export const indexName = "chatwithpdf";
@@ -176,7 +176,6 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
 
 // Placeholder for generating a completion using LangChain
 const generateLangchainComplition = async (docId: string, question: string) => {
-  // Function implementation will be added here
 
   let pineconeVectorStore;
 
@@ -196,7 +195,7 @@ const generateLangchainComplition = async (docId: string, question: string) => {
   console.log("---Defining a prompt template....---");
 
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
-    ...chatHistory, // Insert the actual chat history
+    ...chatHistory, 
 
     ["user", "{input}"],
     [
@@ -221,7 +220,7 @@ const generateLangchainComplition = async (docId: string, question: string) => {
       "system",
       "Answer the user's question based on the below context: \n\n{context}",
     ],
-    ...chatHistory, //insert actual chat history
+    ...chatHistory, 
     ["user", "{input}"],
   ]);
 
@@ -244,8 +243,6 @@ const generateLangchainComplition = async (docId: string, question: string) => {
     chat_history: chatHistory,
     input: question,
   });
-
-  // Print the result to the console
 
   console.log(reply.answer);
   return reply.answer;
