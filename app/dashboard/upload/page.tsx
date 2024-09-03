@@ -1,5 +1,5 @@
 import FileUploader from '@/components/FileUploader';
-import GooglePickerUploader from '@/components/GooglePickerUploader';
+// import GooglePickerUploader from '@/components/GooglePickerUploader';
 import React from 'react';
 
 function UploadPage() {
@@ -7,7 +7,7 @@ function UploadPage() {
     <div>
       {/* File Uploader Component */}
       <FileUploader />
-      <GooglePickerUploader/>
+      {/* <GooglePickerUploader/> */}
     </div>
   );
 }
