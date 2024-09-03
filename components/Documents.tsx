@@ -2,6 +2,7 @@
 
 import React from "react";
 import PlaceholderDocument from "./PlaceholderDocument";
+import GooglePlaceholderDocument from "./GooglePlaceholderDocument";
 import { auth } from "@clerk/nextjs/server";
 import { adminDb } from "@/firebaseAdmin";
 import Document from "./Document";
@@ -39,6 +40,7 @@ async function Documents() {
 
       {/* Placeholder documents */}
       <PlaceholderDocument />
+      <GooglePlaceholderDocument />
     </div>
   );
 }
