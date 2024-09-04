@@ -18,49 +18,37 @@ import { error } from "console";
 // Initialize the OpenAI model with API Key and model name
 const model = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  modelName: "gpt-3.5-turbo", 
+  modelName: "gpt-3.5-turbo",
 });
 
 export const indexName = "chatwithpdf";
 
 //fuction to fetch the messages from the DataBase
 async function fetchMessagefromDB(docId: string) {
-  const { userId } = await auth(); // Fetch the current user's ID
-  if (!userId) {
-    throw Error("User not found.");
-  }
+  const { userId } = await auth();
+  if (!userId) throw Error("User not found.");
 
   console.log("--- fetching chat messages from the firebase database---");
 
-  // Get the last 6 messages from the chat history
-  const chats = await adminDb
-    .collection(`users`)
-    .doc(userId) 
+  // Fetch chat messages using an indexed query and batch reads
+  const chatSnapshot = await adminDb
+    .collection("users")
+    .doc(userId)
     .collection("files")
     .doc(docId)
     .collection("chat")
     .orderBy("createdAt", "desc")
-    .limit(6) 
+    .limit(6)
     .get();
 
-  if (chats.empty) {
-    console.log("No chat history found.");
-    return [];
-  }
-
-  // Convert chat.docs into HumanMessage and AIMessage instances
-  const chatHistory = chats.docs.map((doc) =>
+  const chatHistory = chatSnapshot.docs.map((doc) =>
     doc.data().role === "human"
       ? new HumanMessage(doc.data().message)
       : new AIMessage(doc.data().message)
   );
 
-  console.log(`---Fetched last ${chatHistory.length} messages successfully`);
-  console.log(chatHistory.map((msg) => msg.content.toString()));
-
   return chatHistory;
 }
-
 
 // Check if a namespace exists in Pinecone index
 async function namespaceExists(
@@ -176,7 +164,6 @@ export async function generateEmbeddingsInPinecodeVectorStore(docId: string) {
 
 // Placeholder for generating a completion using LangChain
 const generateLangchainComplition = async (docId: string, question: string) => {
-
   let pineconeVectorStore;
 
   pineconeVectorStore = await generateEmbeddingsInPinecodeVectorStore(docId);
@@ -195,7 +182,7 @@ const generateLangchainComplition = async (docId: string, question: string) => {
   console.log("---Defining a prompt template....---");
 
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
-    ...chatHistory, 
+    ...chatHistory,
 
     ["user", "{input}"],
     [
@@ -220,7 +207,7 @@ const generateLangchainComplition = async (docId: string, question: string) => {
       "system",
       "Answer the user's question based on the below context: \n\n{context}",
     ],
-    ...chatHistory, 
+    ...chatHistory,
     ["user", "{input}"],
   ]);
 
@@ -246,8 +233,6 @@ const generateLangchainComplition = async (docId: string, question: string) => {
 
   console.log(reply.answer);
   return reply.answer;
-
 };
 
-
-export {model, generateLangchainComplition};
+export { model, generateLangchainComplition };

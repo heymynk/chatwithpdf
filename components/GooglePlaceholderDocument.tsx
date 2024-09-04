@@ -30,13 +30,19 @@ export enum StatusText {
   UPLOADING = "Uploading File...",
   UPLOADED = "File Uploaded Successfully.",
   SAVING = "Saving file to database...",
-  GENERATING = "Generating AI Embeddings, This will only take a few seconds...",
+  GENERATING = "Generating AI Embeddings...",
 }
 
-export type Status = StatusText[keyof StatusText];
+export type Status = keyof typeof StatusText;
+
+const statusText: Record<Status, string> = {
+  UPLOADING: StatusText.UPLOADING,
+  UPLOADED: StatusText.UPLOADED,
+  SAVING: StatusText.SAVING,
+  GENERATING: StatusText.GENERATING,
+};
 
 const generateFileId = async (file: Blob): Promise<string> => {
-  // Generate a unique file ID based on the file's content
   const arrayBuffer = await file.arrayBuffer();
   const hash = createHash("sha256");
   hash.update(new Uint8Array(arrayBuffer));
@@ -46,12 +52,12 @@ const generateFileId = async (file: Blob): Promise<string> => {
 const GooglePlaceholderDocument = () => {
   const [openPicker] = useDrivePicker();
   const { getToken } = useAuth();
-  const { user } = useUser(); // Fetch user from auth
+  const { user } = useUser();
   const [isPending, startTransition] = useTransition();
   const [progress, setProgress] = useState<number | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
   const [fileId, setFileId] = useState<string | null>(null);
-  const router = useRouter(); // Add useRouter for navigation
+  const router = useRouter();
 
   const handleOpenPicker = async () => {
     if (!user) {
@@ -73,7 +79,7 @@ const GooglePlaceholderDocument = () => {
               "305248275761-66iogb5k5anc7dk9f9puk95ptc2si7tj.apps.googleusercontent.com",
             developerKey: "AIzaSyC3CSpcsW0fhyiyhpYhV3lZP7YS5WixP8w",
             viewId: "DOCS",
-            viewMimeTypes: "application/pdf", // Filter to show only PDFs
+            viewMimeTypes: "application/pdf",
             token: tokenInfo ? tokenInfo.access_token : null,
             showUploadView: true,
             showUploadFolders: true,
@@ -97,29 +103,27 @@ const GooglePlaceholderDocument = () => {
                     .filter(
                       (item: GooglePickerFile) =>
                         item.mimeType === "application/pdf"
-                    ) // Process only PDFs
+                    )
                     .map(async (item: GooglePickerFile) => {
                       const response = await fetch(
                         `${driveFileUrl}/${item.id}?alt=media`,
                         fetchOptions
                       );
                       const blob = await response.blob();
-                      const fileIdToUpload = await generateFileId(blob); // Generate file ID
+                      const fileIdToUpload = await generateFileId(blob);
                       const fileRef = ref(
                         storage,
-                        `users/${user.id}/files/${fileIdToUpload}.pdf` // Include user ID in path
-                      ); // Reference for the file in Firebase Storage
-                      const uploadTask = uploadBytesResumable(fileRef, blob); // Upload file to Firebase
-
+                        `users/${user.id}/files/${fileIdToUpload}.pdf`
+                      );
+                      const uploadTask = uploadBytesResumable(fileRef, blob);
                       uploadTask.on(
                         "state_changed",
                         (snapshot) => {
-                          // Monitor upload progress
                           const percent = Math.round(
                             (snapshot.bytesTransferred / snapshot.totalBytes) *
                               100
                           );
-                          setStatus(StatusText.UPLOADING);
+                          setStatus("UPLOADING"); // Use string literal
                           setProgress(percent);
                         },
                         (error) => {
@@ -132,26 +136,32 @@ const GooglePlaceholderDocument = () => {
                             const downloadURL = await getDownloadURL(
                               uploadTask.snapshot.ref
                             );
-                            setStatus(StatusText.SAVING);
+                            setStatus("SAVING"); // Use string literal
 
-                            // Save file metadata to Firestore
-                            await setDoc(doc(db, "users", user.id, "files", fileIdToUpload), { // Include user ID in path
-                              name: item.name,
-                              size: blob.size,
-                              type: item.mimeType,
-                              downloadURL: downloadURL,
-                              ref: uploadTask.snapshot.ref.fullPath,
-                              createdAt: new Date(),
-                            });
+                            await setDoc(
+                              doc(
+                                db,
+                                "users",
+                                user.id,
+                                "files",
+                                fileIdToUpload
+                              ),
+                              {
+                                name: item.name,
+                                size: blob.size,
+                                type: item.mimeType,
+                                downloadURL: downloadURL,
+                                ref: uploadTask.snapshot.ref.fullPath,
+                                createdAt: new Date(),
+                              }
+                            );
 
-                            setStatus(StatusText.GENERATING);
+                            setStatus("GENERATING"); // Use string literal
 
-                            // Generate AI Embeddings
                             await generateEmbeddings(fileIdToUpload);
 
                             setFileId(fileIdToUpload);
 
-                            // Navigate to file details page
                             router.push(`/dashboard/files/${fileIdToUpload}`);
                           } catch (error) {
                             console.error(
@@ -182,15 +192,21 @@ const GooglePlaceholderDocument = () => {
   return (
     <Button
       onClick={handleClick}
-      className="flex flex-col items-center w-64 h-80 rounded-xl bg-gray-300 drop-shadow-md text-gray-600"
+      className="relative flex flex-col items-center justify-center w-64 h-80 rounded-xl bg-gray-300 drop-shadow-md text-gray-600"
       disabled={isPending}
     >
-      {isPending ? (
-        <Loader2Icon className="h-16 w-16 animate-spin" />
-      ) : (
+      {(status || isPending) && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 bg-opacity-75 rounded-xl">
+          <Loader2Icon className="h-16 w-16 animate-spin" />
+          <p className="mt-2 text-sm font-semibold text-gray-700 text-center">
+            {status ? statusText[status] : "Processing..."}
+          </p>
+        </div>
+      )}
+      {!status && !isPending && (
         <>
           <FaGoogleDrive className="h-16 w-16" />
-          <p>Add a document from Google Drive</p>
+          <p>Add document from Google Drive</p>
         </>
       )}
     </Button>

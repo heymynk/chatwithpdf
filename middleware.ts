@@ -1,15 +1,23 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 // Define a route matcher for protected routes under "/dashboard"
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
-// Middleware to handle authentication and protect routes
+// Middleware to handle authentication, protect routes, and set COOP header
 export default clerkMiddleware((auth, req) => {
+    const res = NextResponse.next();
+
+    // Set Cross-Origin-Opener-Policy header
+    res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+
     // Check if the request matches the protected route pattern
     if (isProtectedRoute(req)) {
         // Protect the route by enforcing authentication
-        auth().protect();   
+        auth().protect();
     }
+
+    return res;
 });
 
 // Configuration for route matching
