@@ -17,6 +17,7 @@ import { db } from "@/firebase";
 import { askQuestion } from "@/actions/askQuestion";
 import ChatMessage from "./ChatMessage";
 import { deleteChat } from "@/actions/deleteChat";
+import { IoSend } from "react-icons/io5"
 
 export type Message = {
   id?: string;
@@ -250,27 +251,27 @@ function Chat({ id }: { id: string }) {
       {/* Form for asking questions */}
       <form
         onSubmit={handleOnSubmit}
-        className="flex items-center justify-between p-2 space-x-2 bg-purple-700/80 backdrop-blur-lg border-t border-purple-600 shadow-md sticky bottom-0"
+        className="flex items-center justify-between p-2 space-x-4 bg-purple-700/80 backdrop-blur-lg border-t border-purple-600 shadow-md sticky bottom-0"
       >
         <Input
           placeholder="Ask a Question..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-grow px-4 py-2 bg-white/90 rounded-full border text-purple-800 focus:outline-none"
+          className=" flex-grow px-6 ml-2 py-2 bg-white/90 rounded-md border text-purple-800 focus:outline-none"
         />
         <Button
           type="submit"
           disabled={!input || isAsking}
-          className={`px-4 py-2 rounded-full font-semibold text-white transition-colors ${
+          className={`px-4 py-2 font-semibold text-white transition-colors ${
             isAsking
               ? "bg-purple-500 cursor-not-allowed"
-              : "bg-purple-600 hover:bg-purple-700"
+              : "bg-gray-800 hover:bg-white hover:text-black"
           }`}
         >
           {isAsking ? (
             <Loader2Icon className="animate-spin text-white" />
           ) : (
-            "Ask"
+            <IoSend/>
           )}
         </Button>
       </form>
