@@ -23,7 +23,7 @@ function Document({
 
   return (
     <div
-      className="relative flex flex-col w-64 h-80 rounded-xl bg-white drop-shadow-md justify-between p-4 transition-all transform hover:scale-105 hover:bg-purple-600 hover:text-white cursor-pointer group"
+      className="relative flex flex-col w-64 h-80 rounded-xl bg-white drop-shadow-md justify-between p-4 transition-all transform hover:scale-105 hover:bg-purple-500 hover:text-white cursor-pointer group"
       onClick={() => router.push(`/dashboard/files/${id}`)}
     >
       <div className="flex-1">

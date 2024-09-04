@@ -5,15 +5,32 @@ import { Message } from "./Chat";
 import Image from "next/image";
 import { BotIcon } from "lucide-react";
 import Markdown from "react-markdown";
+import { motion } from "framer-motion";
 
-function ChatMessage({ message }: { message: Message }) {
+const messageVariants = {
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
+  visible: { opacity: 1, scale: 1, y: 0 },
+};
+
+const bubbleVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1 },
+};
+
+const ChatMessage = ({ message }: { message: Message }) => {
   const isHuman = message.role === "human";
   const { user } = useUser();
 
   return (
-    <div className={`chat ${isHuman ? "chat-end" : "chat-start"} mb-4`}>
+    <motion.div 
+      className={`chat ${isHuman ? "chat-end" : "chat-start"} mb-4`}
+      variants={messageVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.5, type: 'spring', stiffness: 80 }}
+    >
       <div className="chat-image avatar">
-        <div className="w-8 h-8 rounded-full"> {/* Smaller avatar */}
+        <div className="w-8 h-8 rounded-full"> 
           {isHuman ? (
             user?.imageUrl && (
               <Image
@@ -25,25 +42,31 @@ function ChatMessage({ message }: { message: Message }) {
               />
             )
           ) : (
-            <div className="h-8 w-8 bg-purple-600 flex items-center justify-center rounded-full"> {/* Smaller bot icon */}
+            <div className="h-8 w-8 bg-purple-600 flex items-center justify-center rounded-full"> 
               <BotIcon className="text-white h-6 w-6" />
             </div>
           )}
         </div>
       </div>
-      <div className={`chat-bubble prose ${isHuman && "bg-purple-600 text-white"} flex items-center justify-center`}>
+      <motion.div 
+        className={`chat-bubble prose ${isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"} flex items-center justify-center`}
+        variants={bubbleVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
         {message.message === "Thinking..." ? (
           <div className="flex items-center justify-center space-x-1.5">
-            <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-white rounded-full animate-bounce animation-delay-100"></div>
-            <div className="w-2 h-2 bg-white rounded-full animate-bounce animation-delay-200"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-100"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
           </div>
         ) : (
           <Markdown>{message.message}</Markdown>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
-}
+};
 
 export default ChatMessage;
