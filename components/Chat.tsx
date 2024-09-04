@@ -6,9 +6,9 @@ import { Input } from "./ui/input";
 import {
   Loader2Icon,
   DownloadIcon,
-  TrashIcon,
-  Share2Icon,
   Trash2Icon,
+  Share2Icon,
+  LoaderIcon
 } from "lucide-react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useUser } from "@clerk/nextjs";
@@ -30,7 +30,9 @@ function Chat({ id }: { id: string }) {
 
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isPending, startTransition] = useTransition();
+  const [isAsking, setIsAsking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
 
   const [snapshot, loading, error] = useCollection(
@@ -70,9 +72,9 @@ function Chat({ id }: { id: string }) {
 
   const handleOnSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
+    setIsAsking(true);
     const q = input;
-    setInput(" ");
+    setInput("");
 
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -89,9 +91,8 @@ function Chat({ id }: { id: string }) {
       },
     ]);
 
-    startTransition(async () => {
+    try {
       const { success, message } = await askQuestion(id, q);
-
       if (!success) {
         setMessages((prev) =>
           prev.slice(0, prev.length - 1).concat([
@@ -103,18 +104,23 @@ function Chat({ id }: { id: string }) {
           ])
         );
       }
-    });
+    } catch (error) {
+      console.error("Error while asking question:", error);
+    } finally {
+      setIsAsking(false);
+    }
   };
 
   const handleDeleteConversation = async () => {
+    setIsDeleting(true);
     try {
-      startTransition(async () => {
-        const userId = user?.id?.toString() ?? "";
-        await deleteChat(id?.toString() ?? "", userId);
-        console.log("Chat deleted successfully");
-      });
+      const userId = user?.id?.toString() ?? "";
+      await deleteChat(id?.toString() ?? "", userId);
+      console.log("Chat deleted successfully");
     } catch (error) {
       console.error("Failed to delete chat:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -183,20 +189,6 @@ function Chat({ id }: { id: string }) {
     });
   };
 
-  
-  // const handleShareChat = (chatId) => {
-  //   // Construct the shareable link based on the chatId and current location
-  //   const shareableLink = `${window.location.origin}/chat/${chatId}`;
-  
-  //   // Copy the link to the clipboard
-  //   navigator.clipboard.writeText(shareableLink).then(() => {
-  //     alert("Chat link copied to clipboard");
-  //   }).catch((err) => {
-  //     console.error("Failed to copy chat link: ", err);
-  //     alert("Failed to copy chat link");
-  //   });
-  // };
-  
   return (
     <div className="flex flex-col h-full overflow-scroll">
       {/* Actions Section */}
@@ -206,7 +198,11 @@ function Chat({ id }: { id: string }) {
           onClick={handleDeleteConversation}
           className="flex items-center space-x-2 mx-2"
         >
-          <Trash2Icon className="h-5 w-5 text-red-500" />
+          {isDeleting ? (
+            <LoaderIcon className="h-6 w-6 animate-spin text-gray-500" />
+          ) : (
+            <Trash2Icon className="h-6 w-6 text-red-500" />
+          )}
         </Button>
         <Button
           variant="outline"
@@ -264,14 +260,14 @@ function Chat({ id }: { id: string }) {
         />
         <Button
           type="submit"
-          disabled={!input || isPending}
+          disabled={!input || isAsking}
           className={`px-4 py-2 rounded-full font-semibold text-white transition-colors ${
-            isPending
+            isAsking
               ? "bg-purple-500 cursor-not-allowed"
               : "bg-purple-600 hover:bg-purple-700"
           }`}
         >
-          {isPending ? (
+          {isAsking ? (
             <Loader2Icon className="animate-spin text-white" />
           ) : (
             "Ask"

@@ -195,14 +195,19 @@ const generateLangchainComplition = async (docId: string, question: string) => {
   console.log("---Defining a prompt template....---");
 
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
-    ...chatHistory, 
-
+    // Include the conversation history
+    ...chatHistory,
+  
+    // User's current input or query
     ["user", "{input}"],
+  
+    // Instruction for generating a search query
     [
-      "user",
-      "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation",
-    ],
+      "system",
+      `Based on the conversation history and the user's latest input, generate a search query that would help in retrieving relevant information related to the discussion. The query should be specific enough to capture the key points and context from the conversation. Aim for a clear, concise, and relevant search phrase or question that reflects the main topic or information needed.`
+    ]
   ]);
+  
 
   // Create a history-aware retriever chain that uses the model, retriever, and prompt
   console.log("---creating a history-aware retriever chain... ---");
@@ -218,7 +223,7 @@ const generateLangchainComplition = async (docId: string, question: string) => {
   const historyAwareRetrievalPrompt = ChatPromptTemplate.fromMessages([
     [
       "system",
-      "Answer the user's question based on the below context: \n\n{context}",
+      "Answer the user's question based on the below context: \n\n{context} Format your answer in a readable way, using bullet points or numbered lists if necessary.",
     ],
     ...chatHistory, 
     ["user", "{input}"],
