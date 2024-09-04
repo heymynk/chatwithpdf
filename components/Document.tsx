@@ -38,7 +38,9 @@ function Document({
           variant="outline"
           onClick={(e) => {
             e.stopPropagation();
-            if (window.confirm("Are you sure you want to delete this document?")) {
+            if (
+              window.confirm("Are you sure you want to delete this document?")
+            ) {
               startTransition(() => deleteDocument(id));
             }
           }}
@@ -50,7 +52,12 @@ function Document({
           )}
         </Button>
         <Button variant="outline" asChild>
-          <a href={downloadURL} download target="_blank">
+          <a
+            href={downloadURL}
+            download
+            target="_blank"
+            onClick={(e) => e.stopPropagation()}
+          >
             <DownloadCloud className="h-6 w-6 text-purple-600" />
           </a>
         </Button>
