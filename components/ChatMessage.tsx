@@ -22,7 +22,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
   const { user } = useUser();
 
   return (
-    <motion.div 
+    <motion.div
       className={`chat ${isHuman ? "chat-end" : "chat-start"} mb-4`}
       variants={messageVariants}
       initial="hidden"
@@ -30,26 +30,30 @@ const ChatMessage = ({ message }: { message: Message }) => {
       transition={{ duration: 0.5, type: 'spring', stiffness: 80 }}
     >
       <div className="chat-image avatar">
-        <div className="w-8 h-8 rounded-full"> 
+        <div className="w-10 h-10 rounded-full">
           {isHuman ? (
             user?.imageUrl && (
               <Image
                 src={user?.imageUrl}
                 alt="Profile Picture"
-                width={32}
-                height={32}
+                width={40}
+                height={40}
                 className="rounded-full"
               />
             )
           ) : (
-            <div className="h-8 w-8 bg-purple-600 flex items-center justify-center rounded-full"> 
+            <div className="h-10 w-10 bg-purple-600 flex items-center justify-center rounded-full">
               <BotIcon className="text-white h-6 w-6" />
             </div>
           )}
         </div>
       </div>
-      <motion.div 
-        className={`chat-bubble prose ${isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"} flex items-center justify-center`}
+
+      <motion.div
+        className={`chat-bubble prose ${
+          isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
+        } max-w-xl p-3 rounded-lg`}
+        style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
         variants={bubbleVariants}
         initial="hidden"
         animate="visible"
