@@ -34,8 +34,8 @@ function Document({
         </p>
       </div>
 
-      {/* Centered PDF Logo */}
-      <div className="flex-1 flex items-center justify-center mt-2">
+      {/* Centered PDF Logo with fixed height */}
+      <div className="flex-1 flex items-center justify-center mt-2 h-24"> {/* Adjust height as needed */}
         <FileText className="h-16 w-16 text-gray-600 group-hover:text-white" />
       </div>
 
