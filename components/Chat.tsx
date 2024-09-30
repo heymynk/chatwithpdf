@@ -163,7 +163,7 @@ function Chat({ id }: { id: string }) {
           width: 70rem; 
           max-height: 90vh; 
           overflow-y: auto; 
-          padding: 1rem 1rem 2rem; 
+          padding: 2rem 2rem 2rem; 
           background-color: #ffffff; 
           border-radius: 0.375rem; 
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
@@ -183,12 +183,19 @@ function Chat({ id }: { id: string }) {
         .chat-message.received {
           background-color: #edf2f7; 
           color: #2d3748; 
-          display: inline-block;
+        }
+        .chatwithpdf {
+          color: #000000;
+          text-align: center;
+          font-weight: bold;   
+          vertical-align: middle; 
+
         }
       </style>
     </head>
     <body>
-      <div class="chat-container">
+    <div class="chat-container">
+    <h1 class="chatwithpdf">The Chat Conersation With ChatWithPDF</h1>
         <div class="chat-messages">
           ${chatData} 
         </div>
