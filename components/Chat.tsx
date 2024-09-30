@@ -132,7 +132,7 @@ function Chat({ id }: { id: string }) {
     const chatData = messages
       .map((msg) => {
         const role = msg.role === "human" ? loggedInUserName : " ";
-        const messageClass = msg.role === "human" ? "sent" : "received"; 
+        const messageClass = msg.role === "human" ? "sent" : "received";
         return `<div class="chat-message ${messageClass}"><strong>${role}:</strong> ${msg.message}</div>`;
       })
       .join("\n");
@@ -179,7 +179,6 @@ function Chat({ id }: { id: string }) {
         .chat-message.sent {
           background-color: #9333EAFF; 
           color: #ffffff; 
-          display: inline-block;
         }
         .chat-message.received {
           background-color: #edf2f7; 
