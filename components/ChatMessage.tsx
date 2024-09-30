@@ -27,7 +27,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
       variants={messageVariants}
       initial="hidden"
       animate="visible"
-      transition={{ duration: 0.5, type: 'spring', stiffness: 80 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 80 }}
     >
       <div className="chat-image avatar">
         <div className="w-10 h-10 rounded-full">
@@ -49,10 +49,10 @@ const ChatMessage = ({ message }: { message: Message }) => {
         </div>
       </div>
 
-      <motion.div
+      {/* <motion.div
         className={`chat-bubble prose ${
           isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
-        } max-w-xl p-3 rounded-lg`}
+        } max-w-xl p-3 rounded-lg items-center justify-center`}
         style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
         variants={bubbleVariants}
         initial="hidden"
@@ -67,6 +67,26 @@ const ChatMessage = ({ message }: { message: Message }) => {
           </div>
         ) : (
           <Markdown>{message.message}</Markdown>
+        )}
+      </motion.div> */}
+
+      <motion.div
+        className={`chat-bubble prose ${
+          isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
+        } flex items-center justify-center`}
+        variants={bubbleVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        {message.message === "Thinking..." ? (
+          <div className="flex items-center justify-center space-x-1.5">
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-100"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
+          </div>
+        ) : (
+          <Markdown className="break-words whitespace-pre-line">{message.message}</Markdown>
         )}
       </motion.div>
     </motion.div>
