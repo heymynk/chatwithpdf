@@ -126,10 +126,18 @@ function Chat({ id }: { id: string }) {
   };
 
   const handleDownloadChat = () => {
+    const loggedInUserName = user?.firstName || "Guest";
+
     // Convert messages to HTML format
     const chatData = messages
-      .map((msg) => `<p><strong>${msg.role}:</strong> ${msg.message}</p>`)
+      .map((msg) => {
+        const role = msg.role === "human" ? loggedInUserName : " ";
+        const messageClass = msg.role === "human" ? "sent" : "received"; 
+        return `<div class="chat-message ${messageClass}"><strong>${role}:</strong> ${msg.message}</div>`;
+      })
       .join("\n");
+
+    console.log("This is chat data", chatData);
 
     // Wrap the chat data in basic HTML structure
     const htmlContent = `
@@ -140,31 +148,55 @@ function Chat({ id }: { id: string }) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Chat Conversation</title>
       <style>
-        /* Add Tailwind CSS styles here */
         body {
-          @apply h-screen overflow-hidden bg-gray-100;
+          height: 100vh;
+          margin: 0;
+          background-color: #edf2f7; 
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
         .chat-container {
-          @apply max-w-md mx-auto p-4 pt-6 pb-8 mb-4 bg-white rounded shadow-md;
+          word-break: break-word;
+          white-space: pre-line;
+
+          width: 70rem; 
+          max-height: 90vh; 
+          overflow-y: auto; 
+          padding: 1rem 1rem 2rem; 
+          background-color: #ffffff; 
+          border-radius: 0.375rem; 
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
         }
         .chat-message {
-          @apply mb-4 p-4 rounded shadow-md;
+          line-height: 1.5em; 
+          margin-bottom: 1rem; 
+          padding: 1rem; 
+          border-radius: 0.375rem; 
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+          color: #805ad5; 
         }
         .chat-message.sent {
-          @apply bg-green-100 text-green-800;
+          background-color: #9333EAFF; 
+          color: #ffffff; 
+          display: inline-block;
         }
         .chat-message.received {
-          @apply bg-gray-100 text-gray-800;
+          background-color: #edf2f7; 
+          color: #2d3748; 
+          display: inline-block;
         }
       </style>
     </head>
     <body>
       <div class="chat-container">
-        ${chatData}
+        <div class="chat-messages">
+          ${chatData} 
+        </div>
       </div>
     </body>
     </html>
-  `;
+    `;
 
     // Create a Blob from the HTML content
     const blob = new Blob([htmlContent], { type: "text/html" });
