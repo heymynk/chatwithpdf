@@ -7,6 +7,8 @@ import { BotIcon } from "lucide-react";
 import Markdown from "react-markdown";
 import { motion } from "framer-motion";
 
+import ReactMarkdown from "react-markdown";
+
 const messageVariants = {
   hidden: { opacity: 0, scale: 0.9, y: 20 },
   visible: { opacity: 1, scale: 1, y: 0 },
@@ -52,27 +54,6 @@ const ChatMessage = ({ message }: { message: Message }) => {
       {/* <motion.div
         className={`chat-bubble prose ${
           isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
-        } max-w-xl p-3 rounded-lg items-center justify-center`}
-        style={{ wordWrap: 'break-word', whiteSpace: 'pre-wrap' }}
-        variants={bubbleVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-      >
-        {message.message === "Thinking..." ? (
-          <div className="flex items-center justify-center space-x-1.5">
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-100"></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
-          </div>
-        ) : (
-          <Markdown>{message.message}</Markdown>
-        )}
-      </motion.div> */}
-
-      <motion.div
-        className={`chat-bubble prose ${
-          isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
         } flex items-center justify-center`}
         variants={bubbleVariants}
         initial="hidden"
@@ -86,7 +67,39 @@ const ChatMessage = ({ message }: { message: Message }) => {
             <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
           </div>
         ) : (
-          <Markdown className="break-words whitespace-pre-line">{message.message}</Markdown>
+          <Markdown className="break-words whitespace-pre-line">
+            {message.message}
+          </Markdown>
+        )}
+      </motion.div> */}
+
+      <motion.div
+        className={`chat-bubble ${
+          isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
+        } max-w-md p-3 rounded-lg`}
+        variants={bubbleVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        {message.message === "Thinking..." ? (
+          <div className="flex items-center justify-center space-x-1.5">
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-100"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
+          </div>
+        ) : (
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => (
+                <p className="break-words whitespace-pre-wrap text-base leading-normal">
+                  {children}
+                </p>
+              ),
+            }}
+          >
+            {message.message}
+          </ReactMarkdown>
         )}
       </motion.div>
     </motion.div>
