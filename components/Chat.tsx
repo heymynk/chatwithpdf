@@ -195,7 +195,7 @@ function Chat({ id }: { id: string }) {
     </head>
     <body>
     <div class="chat-container">
-    <h1 class="chatwithpdf">The Chat Conersation With ChatWithPDF</h1>
+    <h1 class="chatwithpdf">The Chat Conversation With ChatWithPDF</h1>
         <div class="chat-messages">
           ${chatData} 
         </div>
