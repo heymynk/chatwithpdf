@@ -43,7 +43,7 @@ function useUpload() {
 
     try {
       const fileIdToUpload = await generateFileId(file); 
-      const storageRef = ref(storage, `users/${user.id}/files/${fileIdToUpload}`); // Reference for the file in Firebase Storage
+      const storageRef = ref(storage, `users/${user.id}/files/${fileIdToUpload}`); 
 
       const uploadTask = uploadBytesResumable(storageRef, file); 
 

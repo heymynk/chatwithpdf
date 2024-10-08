@@ -1,7 +1,47 @@
+'use client'
+
 import { Button } from "@/components/ui/button";
+import useSubscription from "@/hooks/useSubscription";
+import getStripe from "@/lib/stripe-js";
+import { useUser } from "@clerk/nextjs";
 import { CheckIcon, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+
+export type UserDetails = {
+    email: string;
+    name: string;
+}
 
 function PricingPage() {
+  const { user } = useUser();
+  const router = useRouter();
+  const { hasActiveMembership, loading } = useSubscription();
+  const [isPending, startTransition] = useTransition();
+
+  const handleUpgrade = () => {
+    if(!user) return;
+
+    const userDetails:  UserDetails = {
+        email: user.primaryEmailAddress?.toString()!,
+        name: user.fullName!,
+    };
+
+    startTransition( async () => {
+        const stripe = await getStripe();
+
+        if(hasActiveMembership){
+            //Create stripe portal
+        }
+
+        const sessionId = await createCheckoutSession(userDetails);
+        await stripe?.redirectToCheckout({
+            sessionId,
+        })
+    })
+
+  };
+
   return (
     <div>
       <div className="py-24 sm:py-32">
@@ -111,8 +151,16 @@ function PricingPage() {
                 24-hour support response time
               </li>
             </ul>
-            <Button className="w-full bg-purple-600 text-white shadow-sm hover:bg-purple-500 mt-6 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500">
-              Upgrade to Pro
+            <Button
+              className="w-full bg-purple-600 text-white shadow-sm hover:bg-purple-500 mt-6 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+              disabled={isPending || loading}
+              onClick={handleUpgrade}
+            >
+              {isPending || loading
+                ? "Loading..."
+                : hasActiveMembership
+                ? "Manage Plan"
+                : "Upgrade To Pro"}
             </Button>
           </div>
         </div>
