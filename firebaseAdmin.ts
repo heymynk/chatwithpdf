@@ -3,7 +3,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage"; // Import getStorage
 
 // Import the service account key JSON for Firebase Admin SDK authentication
-const serviceKey = require("@/service_key.json");
+const serviceKey = require("./service_key.json");
 
 let app: App;
 
