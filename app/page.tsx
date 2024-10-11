@@ -58,7 +58,7 @@ export default function Home() {
         <div className="flex flex-col justify-center items-center mx-auto max-w-7xl px-6 lg:px-8">
           {/* Section Header */}
           <div className="mx-auto max-w-2xl sm:text-center">
-            <h2 className="text-base font-semibold leading-7 text-indigo-700">
+            <h2 className="text-base font-semibold leading-7 text-purple-700">
               Your Interactive Document Companion
             </h2>
             <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-6xl">
@@ -67,11 +67,11 @@ export default function Home() {
 
             <p className="mt-6 text-lg leading-8 text-gray-700">
               Introducing{" "}
-              <span className="font-bold text-indigo-700">Chat With PDF</span>
+              <span className="font-bold text-purple-700">Chat With PDF</span>
               <br />
               <br /> Upload your document, and our chatbot will answer
               questions, summarize content, and answer all your Qs. Ideal for
-              everyone, <span className="text-indigo-700">
+              everyone, <span className="text-purple-700">
                 Chat With PDF
               </span>{" "}
               turns static documents into{" "}

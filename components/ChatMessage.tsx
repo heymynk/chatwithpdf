@@ -43,7 +43,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
                 className="rounded-full"
               />
             )
-          ) : (
+            ) : (
             <div className="h-10 w-10 bg-purple-600 flex items-center justify-center rounded-full">
               <BotIcon className="text-white h-6 w-6" />
             </div>
@@ -75,7 +75,7 @@ const ChatMessage = ({ message }: { message: Message }) => {
 
       <motion.div
         className={`chat-bubble ${
-          isHuman ? "bg-purple-600 text-white" : "bg-gray-200 text-gray-800"
+          isHuman ? "bg-purple-600 text-white" : "bg-gray-700 text-white"
         } max-w-md p-3 rounded-lg`}
         variants={bubbleVariants}
         initial="hidden"
@@ -84,9 +84,9 @@ const ChatMessage = ({ message }: { message: Message }) => {
       >
         {message.message === "Thinking..." ? (
           <div className="flex items-center justify-center space-x-1.5">
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-100"></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce animation-delay-200"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce animation-delay-100"></div>
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce animation-delay-200"></div>
           </div>
         ) : (
           <ReactMarkdown
