@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { Message } from "./Chat";
 import Image from "next/image";
 import { BotIcon } from "lucide-react";
-import Markdown from "react-markdown";
+// import Markdown from "react-markdown";
 import { motion } from "framer-motion";
 
 import ReactMarkdown from "react-markdown";
