@@ -1,5 +1,6 @@
 'use client'
 
+import { createCheckoutSession } from "@/actions/createCheckoutSession";
 import { Button } from "@/components/ui/button";
 import useSubscription from "@/hooks/useSubscription";
 import getStripe from "@/lib/stripe-js";
@@ -35,9 +36,9 @@ function PricingPage() {
         }
 
         const sessionId = await createCheckoutSession(userDetails);
-        await stripe?.redirectToCheckout({
-            sessionId,
-        })
+        // await stripe?.redirectToCheckout({
+        //     sessionId,
+        // })
     })
 
   };

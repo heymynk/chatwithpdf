@@ -1,4 +1,4 @@
-'user server'
+"use server"
 
 import { UserDetails } from "@/app/dashboard/upgrade/page"
 import { adminDb } from "@/firebaseAdmin";
